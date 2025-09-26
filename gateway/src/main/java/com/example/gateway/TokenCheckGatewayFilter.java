@@ -1,18 +1,13 @@
 package com.example.gateway;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
  * <pre>
@@ -36,14 +31,15 @@ public class TokenCheckGatewayFilter extends AbstractGatewayFilterFactory<TokenC
         return (exchange, chain) -> {
             System.out.println("TokenCheckGatewayFilter");
 
-
             return ReactiveSecurityContextHolder.getContext()
                 .flatMap(securityContext -> {
                     var authentication = securityContext.getAuthentication();
                     if (authentication != null && authentication.getPrincipal() instanceof DefaultOAuth2User) {
                         var user = (DefaultOAuth2User) authentication.getPrincipal();
                         String fullName = (String) user.getAttributes().get("name");
-
+                        if (fullName == null) {
+                            fullName = (String) user.getAttributes().get("login");
+                        }
                         ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                             .header("X-name", fullName)
                             .build();

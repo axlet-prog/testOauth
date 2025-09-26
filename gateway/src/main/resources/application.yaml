@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: gateway
   cloud:
@@ -18,7 +20,7 @@ spring:
         registration:
           github:
             client-id: Ov23ligV0vfMlsEmQNyi
-            client-secret: d2e51ae2a6c41b081b5cb7bbf0b1790f857123ed
+            client-secret: 761c2407ceaab49a0aca42507c2e1adb7ed47e6d
             scope:
               - read:user
               - user:email
